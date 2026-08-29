@@ -1,22 +1,4 @@
-"""Timestamp-aware semantic chunking.
-
-Design note (documented decision)
----------------------------------
-Off-the-shelf splitters (e.g. LangChain's ``RecursiveCharacterTextSplitter``)
-operate on a flat string and would throw away the per-word timing that makes
-this project useful. We therefore implement a bespoke chunker that:
-
-1. Builds a character->time map from the cleaned caption segments.
-2. Splits the joined text on sentence boundaries (keeping char offsets).
-3. Greedily packs whole sentences into chunks up to ``chunk_size`` characters
-   with a trailing ``chunk_overlap`` carried into the next chunk, so related
-   sentences stay together and context is not cut mid-thought.
-4. Derives each chunk's ``start_time``/``end_time`` by interpolating the
-   char->time map at the chunk's first and last characters.
-
-This keeps timestamps accurate end-to-end while still producing
-semantically coherent, overlapping chunks.
-"""
+"""Chunk transcript text while keeping timestamps aligned to the original captions."""
 from __future__ import annotations
 
 import re

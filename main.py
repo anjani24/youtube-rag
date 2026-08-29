@@ -1,8 +1,4 @@
-"""YouTube Knowledge Intelligence System — interactive CLI.
-
-Run interactively:      python main.py
-Run the evaluation:     python main.py evaluate
-"""
+"""Main CLI entry point for the project."""
 from __future__ import annotations
 
 import os
@@ -86,9 +82,9 @@ class App:
         chunks = pipe.store.count()
         banner = (
             "╔══════════════════════════════════════════╗\n"
-            "║     YouTube Knowledge Intelligence       ║\n"
+            "║            YouTube Video Search          ║\n"
             "╚══════════════════════════════════════════╝\n"
-            f"\nIndexed videos: {len(videos)}   Knowledge chunks: {chunks}"
+            f"\nIndexed videos: {len(videos)}   Chunks: {chunks}"
         )
         if _RICH:
             console.print(Panel.fit(banner, style="bold cyan"))

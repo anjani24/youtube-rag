@@ -1,13 +1,4 @@
-"""LLM provider abstraction (chat completions).
-
-Supports multiple free and paid providers:
-* ``GroqLLM``       -- free tier at groq.com, very fast (recommended)
-* ``OllamaLLM``     -- local, fully offline, requires Ollama installation
-* ``OpenAILLM``     -- paid, but can use OpenAI-compatible endpoints
-* ``FakeLLM``       -- deterministic, for offline tests and demos
-
-Default is Groq (free, fast, no credit card needed).
-"""
+"""Support for the different LLM backends used by the app."""
 from __future__ import annotations
 
 from typing import Callable, Dict, List, Optional
@@ -119,12 +110,7 @@ class OpenAILLM(BaseLLM):
 
 
 class FakeLLM(BaseLLM):
-    """Deterministic offline LLM.
-
-    Accepts an optional ``responder`` callable for tests. By default it echoes a
-    grounded-looking answer built from the supplied context so the end-to-end
-    pipeline (including citation extraction) is exercisable without a real API.
-    """
+    """Simple offline LLM used for tests and local demos."""
 
     def __init__(self, responder: Optional[Callable[[List[Message]], str]] = None) -> None:
         self._responder = responder
@@ -133,9 +119,9 @@ class FakeLLM(BaseLLM):
         if self._responder is not None:
             return self._responder(messages)
         user = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "")
-        # Return the first ~60 words of the provided context as a stand-in answer.
+        # Return a short placeholder answer based on the provided context.
         snippet = " ".join(user.split()[:60])
-        return f"[FAKE-LLM answer based on provided context] {snippet}"
+        return f"Offline answer: {snippet}"
 
 
 def get_llm(config: Config) -> BaseLLM:

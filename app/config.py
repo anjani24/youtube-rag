@@ -1,11 +1,8 @@
-"""Central configuration for the YouTube Knowledge Intelligence System.
-
-All tunables are read from environment variables (loaded from a local ``.env``
-file via python-dotenv). Nothing here is hard-coded to a secret value.
-"""
+"""Configuration for the app, loaded from environment variables."""
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -17,12 +14,22 @@ except Exception:  # pragma: no cover - dotenv is optional at runtime
     pass
 
 
+def _clean_env_value(raw: str) -> str:
+    value = raw.strip()
+    if not value:
+        return value
+    if value[0] in {'"', "'"} and value[-1] == value[0]:
+        return value[1:-1].strip()
+    value = re.sub(r"\s+#.*$", "", value)
+    return value.strip()
+
+
 def _get_int(name: str, default: int) -> int:
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
         return default
     try:
-        return int(raw)
+        return int(_clean_env_value(raw))
     except ValueError:
         return default
 
@@ -32,7 +39,7 @@ def _get_float(name: str, default: float) -> float:
     if raw is None or raw.strip() == "":
         return default
     try:
-        return float(raw)
+        return float(_clean_env_value(raw))
     except ValueError:
         return default
 
@@ -41,7 +48,7 @@ def _get_str(name: str, default: str) -> str:
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
         return default
-    return raw.strip()
+    return _clean_env_value(raw)
 
 
 @dataclass
@@ -54,7 +61,7 @@ class Config:
     openai_base_url: Optional[str] = None        # override for OpenAI-compatible hosts
     groq_api_key: Optional[str] = None           # free tier at groq.com
     ollama_base_url: Optional[str] = None        # e.g., http://localhost:11434
-    llm_model: str = "openai/gpt-oss-20b"       # Groq model; verify availability at https://console.groq.com/docs/models
+    llm_model: str = "openai/gpt-oss-20b"  # Groq-supported model
     llm_temperature: float = 0.1
     llm_max_tokens: int = 1024
 
@@ -106,7 +113,7 @@ class Config:
             openai_base_url=os.getenv("OPENAI_BASE_URL") or None,
             groq_api_key=os.getenv("GROQ_API_KEY"),
             ollama_base_url=os.getenv("OLLAMA_BASE_URL") or None,
-            llm_model=_get_str("LLM_MODEL", "mixtral-8x7b-32768"),
+            llm_model=_get_str("LLM_MODEL", "openai/gpt-oss-20b"),
             llm_temperature=_get_float("LLM_TEMPERATURE", 0.1),
             llm_max_tokens=_get_int("LLM_MAX_TOKENS", 1024),
             embedding_provider=_get_str("EMBEDDING_PROVIDER", "local"),

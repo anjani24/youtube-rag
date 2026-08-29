@@ -1,10 +1,4 @@
-"""Prompt templates for the RAG pipeline.
-
-Every template is grounding-first: the model is told to use only the supplied
-context, to cite the numbered sources, to preserve uncertainty, and to refuse
-rather than invent. Context blocks are rendered with a stable ``[n]`` index that
-maps 1:1 to the citation list the app builds separately.
-"""
+"""Prompt templates for the RAG pipeline."""
 from __future__ import annotations
 
 from typing import List
@@ -18,15 +12,11 @@ INSUFFICIENT_EVIDENCE = (
 )
 
 QA_SYSTEM = (
-    "You are a precise research assistant answering questions strictly from "
-    "transcript excerpts of YouTube videos.\n"
-    "Rules:\n"
-    "1. Use ONLY the numbered context below. Do not use outside knowledge.\n"
-    "2. Cite every factual claim with its source marker, e.g. [1], [2].\n"
-    "3. If the context does not contain the answer, reply exactly: "
+    "Answer from the transcript excerpts only.\n"
+    "Use the numbered context and cite sources like [1], [2] when you make a factual claim.\n"
+    "If the context does not support an answer, reply exactly: "
     f'"{INSUFFICIENT_EVIDENCE}"\n'
-    "4. Preserve uncertainty; never fabricate facts, numbers, or timestamps.\n"
-    "5. Be concise and well-structured."
+    "Keep the response short and clear."
 )
 
 
@@ -71,10 +61,10 @@ def build_comparison_messages(query: str, grouped: dict) -> List[dict]:
         blocks.append("\n".join(block_lines))
     context = "\n\n".join(blocks)
     system = (
-        "You are comparing how several YouTube videos treat a topic. "
-        "Use ONLY the provided excerpts. Cite claims with [n]. "
-        "Explicitly note agreements, differences, and any gaps. "
-        f'If the excerpts are insufficient, say: "{INSUFFICIENT_EVIDENCE}"'
+        "Compare the excerpts from the selected videos. "
+        "Use only the provided text and cite claims with [n]. "
+        "Call out similarities, differences, and missing information. "
+        f'If the excerpts are not enough, say: "{INSUFFICIENT_EVIDENCE}"'
     )
     user = (
         f"Excerpts grouped by video:\n{context}\n\n"
@@ -86,8 +76,7 @@ def build_comparison_messages(query: str, grouped: dict) -> List[dict]:
 
 def build_summary_messages(title: str, transcript_context: str) -> List[dict]:
     system = (
-        "You summarise educational YouTube videos from their transcript. "
-        "Use ONLY the transcript. Do not invent content."
+        "Summarize the video using only the transcript. Do not invent details."
     )
     user = (
         f"Video title: {title}\n\n"
@@ -103,10 +92,9 @@ def build_summary_messages(title: str, transcript_context: str) -> List[dict]:
 
 def build_chapters_messages(title: str, timed_context: str) -> List[dict]:
     system = (
-        "You create chapter markers for a YouTube video from timestamped "
-        "transcript lines. Every chapter MUST use a timestamp that appears in "
-        "the provided lines. Output one chapter per line as `SECONDS | Title`. "
-        "Do not invent timestamps."
+        "Create chapter markers from the transcript timestamps. "
+        "Only use timestamps that appear in the provided transcript. "
+        "Return one chapter per line as `SECONDS | Title`."
     )
     user = (
         f"Video title: {title}\n\n"
@@ -119,8 +107,7 @@ def build_chapters_messages(title: str, timed_context: str) -> List[dict]:
 
 def build_learning_messages(title: str, transcript_context: str) -> List[dict]:
     system = (
-        "You are a tutor creating study material from a video transcript. "
-        "Use ONLY the transcript. Ground every point in it."
+        "Turn the transcript into simple study notes. Keep every point grounded in the video text."
     )
     user = (
         f"Video title: {title}\n\n"
@@ -136,11 +123,9 @@ def build_learning_messages(title: str, transcript_context: str) -> List[dict]:
 
 def build_quiz_messages(title: str, timed_context: str, n: int = 5) -> List[dict]:
     system = (
-        "You write quiz questions grounded in a video transcript. "
-        "Return STRICT JSON only: a list of objects with keys "
-        '"question", "answer", and "source_seconds". '
-        "source_seconds MUST be a timestamp (in seconds) that appears in the "
-        "provided lines. Do not add prose, markdown, or code fences."
+        "Write quiz questions from the transcript. Return JSON only with "
+        '"question", "answer", and "source_seconds" fields. '
+        "Use only timestamps that appear in the transcript."
     )
     user = (
         f"Video title: {title}\n\n"

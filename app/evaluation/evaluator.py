@@ -1,23 +1,4 @@
-"""Evaluation: real, computed metrics (never fabricated).
-
-Retrieval metrics are computed against relevance labels derived from each
-question's ``expected_video`` and ``expected_keywords``. A retrieved chunk is
-judged relevant iff it belongs to an expected video (when specified) AND
-contains at least one expected keyword (when specified).
-
-We compute, per strategy (vector / bm25 / hybrid / hybrid+rerank):
-  * Recall@K      = relevant retrieved in top-K / total relevant in the corpus
-  * Precision@K   = relevant retrieved in top-K / K
-  * HitRate@K     = fraction of questions with >= 1 relevant chunk in top-K
-  * MRR           = mean reciprocal rank of the first relevant chunk
-
-Generation metrics (skipped for the fake LLM):
-  * answer_relevance   = expected-keyword coverage in the answer
-  * groundedness       = share of answer content tokens found in the context
-  * citation_accuracy  = share of cited timestamps that match retrieved chunks
-
-Performance: retrieval / rerank / LLM / total latency (median ms).
-"""
+"""Evaluation helpers for retrieving, scoring, and reporting metrics."""
 from __future__ import annotations
 
 import re

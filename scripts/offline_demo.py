@@ -1,12 +1,4 @@
-"""End-to-end offline demo — no API keys, no network required.
-
-Seeds two canned transcripts into a real persistent ChromaDB (temp dir) using
-the deterministic hash embedder + fake LLM, then runs every major feature:
-ingest, retrieve, hybrid+rerank answer, citations, topic search, summary,
-comparison, learning/quiz, evaluation, and a persistence reload check.
-
-    python scripts/offline_demo.py
-"""
+"""Quick offline demo that exercises the main workflow without external APIs."""
 from __future__ import annotations
 
 import os

@@ -1,9 +1,4 @@
-"""End-to-end RAG question answering.
-
-Flow: hybrid retrieve (vector + BM25 via RRF) -> rerank -> build grounded
-prompt -> LLM -> attach citations built from the exact retrieved chunks.
-Includes insufficient-evidence handling and lightweight conversation memory.
-"""
+"""Question answering pipeline using retrieval + optional reranking."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -106,8 +101,7 @@ class RAGPipeline:
         except Exception as exc:  # noqa: BLE001
             log.error("LLM call failed: %s", exc)
             return Answer(
-                text="The language model call failed. Please check your API "
-                "configuration and try again.",
+                text="The model call failed. Please check the API setup and try again.",
                 sources=results,
                 sufficient=False,
             )
@@ -146,7 +140,7 @@ class RAGPipeline:
             text = self.llm.chat(messages)
         except Exception as exc:  # noqa: BLE001
             log.error("LLM comparison failed: %s", exc)
-            return Answer(text="The language model call failed.", sufficient=False)
+            return Answer(text="The model call failed.", sufficient=False)
 
         citations = build_citations(all_results)
         return Answer(text=text, citations=citations, sources=all_results)

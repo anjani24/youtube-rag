@@ -1,9 +1,4 @@
-"""Learning mode: study notes + a transcript-grounded quiz.
-
-Quiz questions carry a ``source_seconds`` that is validated against real chunk
-timestamps (snapped to the nearest actual start time), so every question links
-to a real moment in the video.
-"""
+"""Generate study notes and quiz questions from video transcript chunks."""
 from __future__ import annotations
 
 import json
