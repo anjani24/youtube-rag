@@ -208,40 +208,104 @@ source .venv/bin/activate
 # Windows (cmd)
 .venv\Scripts\activate.bat
 
-# 2. Install dependencies
+# 2. Install dependencies (all free!)
 pip install -r requirements.txt
 
 # 3. Configure environment
 cp .env.example .env        # (Windows: copy .env.example .env)
 ```
 
-Then open `.env` and set at minimum `OPENAI_API_KEY` (for the default OpenAI
-providers). To try it with **no keys at all**, set `LLM_PROVIDER=fake` and
-`EMBEDDING_PROVIDER=hash`.
+## ⚡ Quick Start (FREE - No Credit Card Needed!)
+
+### Option 1: Groq API (Recommended - Fast & Free)
+
+1. Get a free Groq API key: https://console.groq.com/
+2. Edit `.env` and set `GROQ_API_KEY=your_key_here`
+3. Run: `python main.py`
+
+**That's it!** Everything else is already configured for free services (local embeddings, local reranking).
+
+### Option 2: Fully Local (No Internet, No API Keys)
+
+1. Install **Ollama**: https://ollama.ai/
+2. Start Ollama: `ollama serve` (in a separate terminal)
+3. Pull a model: `ollama pull mistral`
+4. Edit `.env`:
+   ```
+   LLM_PROVIDER=ollama
+   OLLAMA_BASE_URL=http://localhost:11434
+   LLM_MODEL=mistral
+   EMBEDDING_PROVIDER=local
+   RERANKER_PROVIDER=cross_encoder
+   ```
+5. Run: `python main.py`
+
+### Option 3: Offline Demo (No Setup Needed)
 
 ```bash
-# 4. Run
-python main.py
+python scripts/offline_demo.py          # full pipeline on canned transcripts, no keys needed
 ```
+
+---
 
 ## Configuration
 
 All configuration lives in `.env` (loaded by `python-dotenv`) and is read into a
 single `Config` class — **no secrets are ever hard-coded**. Key variables:
 
-| Variable | Meaning | Default |
+### LLM Provider
+
+| Option | Provider | Cost | Speed | Setup |
+|---|---|---|---|---|
+| **groq** ⭐ | Groq API | FREE (free tier) | Very Fast | Get key at https://console.groq.com/ |
+| **ollama** | Local (Ollama) | FREE (local) | Medium | Install Ollama + pull model |
+| **openai** | OpenAI | PAID | Fast | Requires credit card |
+| **fake** | Deterministic offline | FREE (local) | Instant | No setup (for testing) |
+
+### Embeddings
+
+| Option | Provider | Cost | Speed | Quality |
+|---|---|---|---|---|
+| **local** ⭐ | Sentence-transformers | FREE (local) | Medium | Good (~384-dim) |
+| **openai** | OpenAI API | PAID | Fast | Excellent |
+| **hash** | Deterministic offline | FREE (local) | Fast | Poor (deterministic) |
+
+### Reranking
+
+| Option | Provider | Cost | Setup |
+|---|---|---|---|
+| **cross_encoder** ⭐ | Local cross-encoder | FREE (local) | Included |
+| **identity** | No reranking | FREE (local) | Included |
+| **cohere** | Cohere API | PAID | Requires API key |
+
+### Complete Configuration Reference
+
+| Variable | Options | Default |
 |---|---|---|
-| `LLM_PROVIDER` | `openai` or `fake` (offline) | `openai` |
-| `OPENAI_API_KEY` | API key for OpenAI-compatible LLM/embeddings | — |
-| `OPENAI_BASE_URL` | Point at any OpenAI-compatible host | — |
-| `LLM_MODEL` | Chat model | `gpt-4o-mini` |
-| `EMBEDDING_PROVIDER` | `openai` / `local` / `hash` | `openai` |
-| `EMBEDDING_MODEL` | Embedding model | `text-embedding-3-small` |
-| `RERANKER_PROVIDER` | `identity` / `cross_encoder` / `cohere` | `identity` |
-| `VECTOR_STORE` | `chroma` / `memory` | `chroma` |
-| `TOP_K`, `VECTOR_TOP_K`, `BM25_TOP_K`, `RERANK_TOP_K` | retrieval sizes | 5/15/15/5 |
-| `CHUNK_SIZE`, `CHUNK_OVERLAP` | chunking (characters) | 800/150 |
-| `MAX_RETRIES`, `RETRY_BACKOFF`, `REQUEST_TIMEOUT` | reliability | 3/1.5/60 |
+| `LLM_PROVIDER` | `groq`, `ollama`, `openai`, `fake` | `groq` |
+| `GROQ_API_KEY` | Your key from console.groq.com | — |
+| `OLLAMA_BASE_URL` | e.g., `http://localhost:11434` | — |
+| `LLM_MODEL` | Groq: `mixtral-8x7b-32768`, `llama2-70b-4096` | `mixtral-8x7b-32768` |
+| | Ollama: `mistral`, `neural-chat`, `llama2` | — |
+| `EMBEDDING_PROVIDER` | `local`, `openai`, `hash` | `local` |
+| `EMBEDDING_MODEL` | For local: model name on HuggingFace | `all-MiniLM-L6-v2` |
+| `RERANKER_PROVIDER` | `cross_encoder`, `identity`, `cohere` | `cross_encoder` |
+| `VECTOR_STORE` | `chroma`, `memory` | `chroma` |
+| `TOP_K`, `VECTOR_TOP_K`, `BM25_TOP_K`, `RERANK_TOP_K` | Integer | 5/15/15/5 |
+| `CHUNK_SIZE`, `CHUNK_OVERLAP` | Characters | 800/150 |
+| `MAX_RETRIES`, `RETRY_BACKOFF`, `REQUEST_TIMEOUT` | Tuning | 3/1.5/60 |
+
+---
+
+## Cost Comparison
+
+| Setup | LLM Cost | Embeddings Cost | Reranking Cost | Total |
+|---|---|---|---|---|
+| **Default (Groq + Local)** | $0 (free tier) | $0 | $0 | **$0** ✅ |
+| Ollama (Local) | $0 | $0 | $0 | **$0** ✅ |
+| OpenAI (Full) | $$ | $$$ | $$ | **$$$$$ (expensive)** ❌ |
+
+---
 
 ## Usage
 

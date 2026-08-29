@@ -48,21 +48,23 @@ def _get_str(name: str, default: str) -> str:
 class Config:
     """Runtime configuration. Instantiate with :meth:`from_env`."""
 
-    # ---- LLM provider (OpenAI-compatible by default) ---------------------
-    llm_provider: str = "openai"                 # openai | fake
+    # ---- LLM provider (Groq free tier by default) -----------------------
+    llm_provider: str = "groq"                   # groq | openai | ollama | fake
     openai_api_key: Optional[str] = None
     openai_base_url: Optional[str] = None        # override for OpenAI-compatible hosts
-    llm_model: str = "gpt-4o-mini"
+    groq_api_key: Optional[str] = None           # free tier at groq.com
+    ollama_base_url: Optional[str] = None        # e.g., http://localhost:11434
+    llm_model: str = "llama-3.1-70b-versatile"   # Groq model; ollama: mistral, neural-chat, etc.
     llm_temperature: float = 0.1
     llm_max_tokens: int = 1024
 
-    # ---- Embeddings ------------------------------------------------------
-    embedding_provider: str = "openai"           # openai | local | hash
-    embedding_model: str = "text-embedding-3-small"
-    embedding_dim: int = 256                      # only used by the hash embedder
+    # ---- Embeddings (local by default - free, offline) ------------------
+    embedding_provider: str = "local"            # local | openai | hash
+    embedding_model: str = "all-MiniLM-L6-v2"    # for local embedder
+    embedding_dim: int = 384                      # 384 for all-MiniLM-L6-v2
 
-    # ---- Reranking -------------------------------------------------------
-    reranker_provider: str = "identity"          # identity | cross_encoder | cohere
+    # ---- Reranking (local by default - free) ----------------------------
+    reranker_provider: str = "cross_encoder"     # cross_encoder | identity | cohere
     reranker_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     cohere_api_key: Optional[str] = None
 
@@ -99,16 +101,18 @@ class Config:
     @classmethod
     def from_env(cls) -> "Config":
         return cls(
-            llm_provider=_get_str("LLM_PROVIDER", "openai"),
+            llm_provider=_get_str("LLM_PROVIDER", "groq"),
             openai_api_key=os.getenv("OPENAI_API_KEY"),
             openai_base_url=os.getenv("OPENAI_BASE_URL") or None,
-            llm_model=_get_str("LLM_MODEL", "gpt-4o-mini"),
+            groq_api_key=os.getenv("GROQ_API_KEY"),
+            ollama_base_url=os.getenv("OLLAMA_BASE_URL") or None,
+            llm_model=_get_str("LLM_MODEL", "mixtral-8x7b-32768"),
             llm_temperature=_get_float("LLM_TEMPERATURE", 0.1),
             llm_max_tokens=_get_int("LLM_MAX_TOKENS", 1024),
-            embedding_provider=_get_str("EMBEDDING_PROVIDER", "openai"),
-            embedding_model=_get_str("EMBEDDING_MODEL", "text-embedding-3-small"),
-            embedding_dim=_get_int("EMBEDDING_DIM", 256),
-            reranker_provider=_get_str("RERANKER_PROVIDER", "identity"),
+            embedding_provider=_get_str("EMBEDDING_PROVIDER", "local"),
+            embedding_model=_get_str("EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
+            embedding_dim=_get_int("EMBEDDING_DIM", 384),
+            reranker_provider=_get_str("RERANKER_PROVIDER", "cross_encoder"),
             reranker_model=_get_str(
                 "RERANKER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2"
             ),
@@ -137,12 +141,21 @@ class Config:
         if self.llm_provider == "openai" and not self.openai_api_key:
             raise RuntimeError(
                 "OPENAI_API_KEY is not set. Add it to your .env file or switch "
-                "LLM_PROVIDER=fake for offline experimentation."
+                "LLM_PROVIDER to 'groq' (free), 'ollama' (local), or 'fake' (offline)."
+            )
+        if self.llm_provider == "groq" and not self.groq_api_key:
+            raise RuntimeError(
+                "GROQ_API_KEY is not set. Get a free key at https://console.groq.com/"
+            )
+        if self.llm_provider == "ollama" and not self.ollama_base_url:
+            raise RuntimeError(
+                "OLLAMA_BASE_URL is not set. Install Ollama from https://ollama.ai/ "
+                "or set OLLAMA_BASE_URL (e.g., http://localhost:11434)"
             )
 
     def require_embedding_key(self) -> None:
         if self.embedding_provider == "openai" and not self.openai_api_key:
             raise RuntimeError(
-                "OPENAI_API_KEY is not set. Add it to your .env file or switch "
-                "EMBEDDING_PROVIDER=hash/local for offline experimentation."
+                "OPENAI_API_KEY is not set. Switch EMBEDDING_PROVIDER to 'local' "
+                "(free, offline - recommended) or 'hash' (deterministic, no deps)."
             )

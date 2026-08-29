@@ -3,8 +3,8 @@
 The interface is deliberately tiny (``embed_documents`` / ``embed_query``) so
 providers are interchangeable:
 
-* ``OpenAIEmbedder``  -- default, works with any OpenAI-compatible endpoint.
-* ``LocalEmbedder``   -- sentence-transformers, fully offline (optional dep).
+* ``LocalEmbedder``   -- sentence-transformers, fully offline, FREE (recommended)
+* ``OpenAIEmbedder``  -- paid, works with any OpenAI-compatible endpoint.
 * ``HashEmbedder``    -- deterministic, dependency-free; used for tests and as
                          an offline fallback so the pipeline is always runnable.
 """
@@ -116,10 +116,11 @@ class OpenAIEmbedder(BaseEmbedder):
 
 def get_embedder(config: Config) -> BaseEmbedder:
     provider = config.embedding_provider.lower()
+    if provider == "local":
+        log.info(f"Loading LocalEmbedder (model={config.embedding_model}, dim={config.embedding_dim})")
+        return LocalEmbedder(model_name=config.embedding_model)
     if provider == "openai":
         return OpenAIEmbedder(config)
-    if provider == "local":
-        return LocalEmbedder()
     if provider == "hash":
         return HashEmbedder(dim=config.embedding_dim)
     log.warning("Unknown EMBEDDING_PROVIDER '%s', falling back to hash.", provider)
