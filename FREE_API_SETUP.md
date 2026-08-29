@@ -304,6 +304,40 @@ rm -rf chroma_db/
 
 ---
 
+### "Model has been decommissioned" (Groq)
+
+**Problem:** You get an error like:
+```
+The model `llama-3.1-70b-versatile` has been decommissioned and is no longer supported.
+```
+
+**Solution:** Groq frequently updates available models. Check available models and update your `.env`:
+
+1. Visit: https://console.groq.com/docs/models
+2. See the **Current Models** list
+3. Choose a model and update your `.env`:
+
+```env
+LLM_PROVIDER=groq
+LLM_MODEL=gemma-7b-it   # or another model from the list above
+```
+
+Common stable models:
+- `gemma-7b-it` - Fast, good quality
+- `llama2-70b-4096` - Larger, better reasoning
+- `mixtral-8x7b` - Balanced performance
+
+**Why does this happen?** Groq rotates models based on availability and cost. This is normal for free tiers.
+
+**Workaround:** If Groq models keep changing, use **Ollama** instead (fully local, never changes):
+```env
+LLM_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+LLM_MODEL=mistral
+```
+
+---
+
 ## Performance Tips
 
 ### For Faster Responses

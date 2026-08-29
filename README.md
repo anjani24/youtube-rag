@@ -221,9 +221,12 @@ cp .env.example .env        # (Windows: copy .env.example .env)
 
 1. Get a free Groq API key: https://console.groq.com/
 2. Edit `.env` and set `GROQ_API_KEY=your_key_here`
-3. Run: `python main.py`
+3. **Check available models**: https://console.groq.com/docs/models (Groq updates models frequently)
+4. Run: `python main.py`
 
 **That's it!** Everything else is already configured for free services (local embeddings, local reranking).
+
+If you get a "model decommissioned" error, check the link above and update `LLM_MODEL` in `.env`.
 
 ### Option 2: Fully Local (No Internet, No API Keys)
 

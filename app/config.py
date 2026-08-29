@@ -54,7 +54,7 @@ class Config:
     openai_base_url: Optional[str] = None        # override for OpenAI-compatible hosts
     groq_api_key: Optional[str] = None           # free tier at groq.com
     ollama_base_url: Optional[str] = None        # e.g., http://localhost:11434
-    llm_model: str = "llama-3.1-70b-versatile"   # Groq model; ollama: mistral, neural-chat, etc.
+    llm_model: str = "openai/gpt-oss-20b"       # Groq model; verify availability at https://console.groq.com/docs/models
     llm_temperature: float = 0.1
     llm_max_tokens: int = 1024
 
