@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is retrieval augmented generation?",
+    "expected_video": "",
+    "expected_keywords": ["retrieval", "generation", "context"]
+  },
+  {
+    "question": "Why are embeddings used in a RAG system?",
+    "expected_video": "",
+    "expected_keywords": ["embedding", "vector", "similarity"]
+  },
+  {
+    "question": "What is a vector database used for?",
+    "expected_video": "",
+    "expected_keywords": ["vector", "database", "index"]
+  },
+  {
+    "question": "How does reranking improve retrieval?",
+    "expected_video": "",
+    "expected_keywords": ["rerank", "relevance", "candidates"]
+  },
+  {
+    "question": "What is chunking and why does it matter?",
+    "expected_video": "",
+    "expected_keywords": ["chunk", "overlap", "context"]
+  }
+]

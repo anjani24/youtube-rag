@@ -1,0 +1,18 @@
+# ---- Core runtime -------------------------------------------------------
+youtube-transcript-api>=0.6.2
+chromadb>=0.5.0
+rank-bm25>=0.2.2
+openai>=1.30.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+rich>=13.7.0
+numpy>=1.26.0
+
+# ---- Tests --------------------------------------------------------------
+pytest>=8.0.0
+
+# ---- Optional (uncomment to enable) -------------------------------------
+# Local embeddings + local cross-encoder reranker (heavy, needs torch):
+# sentence-transformers>=3.0.0
+# Cohere API reranker:
+# cohere>=5.0.0
