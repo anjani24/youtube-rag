@@ -1,0 +1,25 @@
+sequenceDiagram
+    actor User
+    participant CLI as CLI
+    participant RAG as RAGPipeline
+    participant V as Vector Search
+    participant B as BM25
+    participant H as Hybrid RRF
+    participant R as Reranker
+    participant LLM as LLM Provider
+    participant C as Citation Builder
+
+    User->>CLI: Ask question
+    CLI->>RAG: answer_question(query, video_ids)
+    RAG->>V: Retrieve semantic candidates
+    RAG->>B: Retrieve lexical candidates
+    V-->>H: Ranked vector hits
+    B-->>H: Ranked BM25 hits
+    H-->>R: Deduplicated candidates, RRF ranks
+    R-->>RAG: Final top-K chunks
+    RAG->>LLM: Question + transcript context
+    LLM-->>RAG: Answer text
+    RAG->>C: Build timestamp citations
+    C-->>RAG: YouTube-linked sources
+    RAG-->>CLI: Answer and sources
+    CLI-->>User: Render cited answer

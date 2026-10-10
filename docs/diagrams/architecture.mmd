@@ -1,0 +1,29 @@
+flowchart TD
+    U[User] --> CLI[Python CLI - main.py]
+    CLI --> ING[Video ingestion]
+    ING --> URL[Validate URL and extract video ID]
+    URL --> CAP[Fetch available YouTube captions]
+    CAP --> CLEAN[Clean transcript segments]
+    CLEAN --> CHUNK[Timestamp-aware chunking with overlap]
+    CHUNK --> EMB[Embedding provider]
+    EMB --> STORE[(Vector store: Chroma or memory)]
+    CHUNK --> RAW[Local cleaned transcript JSON]
+
+    CLI --> Q[Question / topic / summary / compare / learning]
+    Q --> VS[Vector search]
+    Q --> BM[BM25 lexical search]
+    VS --> RRF[Hybrid merge with Reciprocal Rank Fusion]
+    BM --> RRF
+    RRF --> RR[Configured reranker]
+    RR --> CTX[Top-K timestamped transcript chunks]
+    CTX --> LLM[LLM provider: Groq / OpenAI-compatible / Ollama / fake]
+    LLM --> ANS[Answer or generated learning material]
+    CTX --> CITE[Timestamp citation builder]
+    ANS --> OUT[CLI response]
+    CITE --> OUT
+
+    CLI --> EVAL[Evaluation command]
+    EVAL --> METRICS[Recall@K / Precision@K / Hit Rate@K / MRR / latency]
+    EVAL --> GM[Generation: relevance / groundedness / citation accuracy]
+    STORE -. reads .-> VS
+    STORE -. reads .-> BM
